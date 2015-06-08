@@ -1,0 +1,1 @@
+/Users/ederign/projects/drools/kie-wb-distributions/kie-wb/kie-wb-webapp
