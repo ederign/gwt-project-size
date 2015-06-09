@@ -74,7 +74,8 @@ public class GWTLineCounter {
         for ( String line : lines ) {
             if ( !inABlockComment ) {
                 if ( !isABlockComment( line ) ) {
-                    if ( !isAEmptyLine( line ) ) {
+                    String parsedLine = parse(line);
+                    if ( !isAEmptyLine( parsedLine ) ) {
                         if ( !isALineComment( line ) ) {
                             cleanedLines.add( line );
                         }
@@ -92,6 +93,10 @@ public class GWTLineCounter {
         return cleanedLines;
     }
 
+    private boolean isAEmptyLine( String parsedLine ) {
+        return parsedLine.isEmpty();
+    }
+
     private boolean endOfBlockComment( String line ) {
         return line.contains( "*/" );
     }
@@ -101,11 +106,11 @@ public class GWTLineCounter {
     }
 
     private boolean isALineComment( String line ) {
-        return line.contains( "//" );
+        return line.indexOf( "//" )==0;
     }
 
-    private boolean isAEmptyLine( String line ) {
-        return line.replaceAll( "\\s", "" ).isEmpty();
+    private String parse( String line ) {
+        return line.replaceAll( "\\s", "" );
     }
 
     private File prepareTargetDir( File baseDir ) {
