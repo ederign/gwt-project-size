@@ -13,7 +13,10 @@ public class Main {
 
         GWTLineCounter g = new GWTLineCounter();
 
-        System.out.println( g.count( baseDirectories ));;
+        int numberOfLines = g.count( baseDirectories );
+        int numberOfLinesCleaned = g.countIgnoringCommentAndSpaces( baseDirectories );
+        System.out.println( "Total: " + numberOfLines );
+        System.out.println( "Total without comment and spaces: " +numberOfLinesCleaned );
     }
 
 }

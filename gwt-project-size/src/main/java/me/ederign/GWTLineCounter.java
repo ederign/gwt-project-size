@@ -3,6 +3,7 @@ package me.ederign;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -14,12 +15,19 @@ import org.apache.commons.io.FileUtils;
 public class GWTLineCounter {
 
     private int numberOfLines;
+    private boolean ignoreCommentAndSpaces;
 
     public int count( List<String> baseDirectories ) {
+        numberOfLines = 0;
         for ( String baseDirectory : baseDirectories ) {
             process( baseDirectory );
         }
         return numberOfLines;
+    }
+
+    public int countIgnoringCommentAndSpaces( List<String> baseDirectories ) {
+        ignoreCommentAndSpaces = true;
+        return count( baseDirectories );
     }
 
     private void process( String baseDirectory ) {
@@ -44,15 +52,60 @@ public class GWTLineCounter {
             @Override
             public void accept( File file ) {
                 try {
-//                    System.out.println( "Reading File: " + file );
                     List<String> lines = Files.readAllLines( file.toPath() );
-//                    System.out.println( "Number of lines:" + lines.size() );
-                    numberOfLines += lines.size();
+                    if ( ignoreCommentAndSpaces ) {
+                        List<String> cleanedLines = filterLines( lines );
+                        numberOfLines += cleanedLines.size();
+                    } else {
+                        numberOfLines += lines.size();
+                    }
+
                 } catch ( IOException e ) {
                     e.printStackTrace();
                 }
             }
         };
+    }
+
+    private List<String> filterLines( List<String> lines ) {
+        boolean inABlockComment = false;
+
+        List<String> cleanedLines = new ArrayList<>();
+        for ( String line : lines ) {
+            if ( !inABlockComment ) {
+                if ( !isABlockComment( line ) ) {
+                    if ( !isAEmptyLine( line ) ) {
+                        if ( !isALineComment( line ) ) {
+                            cleanedLines.add( line );
+                        }
+                    }
+                } else {
+                    inABlockComment = true;
+                }
+            } else {
+                if ( endOfBlockComment( line ) ) {
+                    inABlockComment = false;
+                }
+            }
+
+        }
+        return cleanedLines;
+    }
+
+    private boolean endOfBlockComment( String line ) {
+        return line.contains( "*/" );
+    }
+
+    private boolean isABlockComment( String line ) {
+        return line.contains( "/*" );
+    }
+
+    private boolean isALineComment( String line ) {
+        return line.contains( "//" );
+    }
+
+    private boolean isAEmptyLine( String line ) {
+        return line.replaceAll( "\\s", "" ).isEmpty();
     }
 
     private File prepareTargetDir( File baseDir ) {
@@ -75,4 +128,5 @@ public class GWTLineCounter {
                 !f.getAbsolutePath().contains( "Fast" ) &&
                 !f.getAbsolutePath().contains( "WEB-INF" ) );
     }
+
 }
