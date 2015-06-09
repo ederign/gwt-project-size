@@ -76,8 +76,8 @@ public class GWTLineCounter {
                 if ( !isABlockComment( line ) ) {
                     String parsedLine = parse(line);
                     if ( !isAEmptyLine( parsedLine ) ) {
-                        if ( !isALineComment( line ) ) {
-                            cleanedLines.add( line );
+                        if ( !isALineComment( parsedLine ) ) {
+                            cleanedLines.add( parsedLine );
                         }
                     }
                 } else {
@@ -106,7 +106,7 @@ public class GWTLineCounter {
     }
 
     private boolean isALineComment( String line ) {
-        return line.indexOf( "//" )==0;
+        return line.startsWith( "//" );
     }
 
     private String parse( String line ) {
